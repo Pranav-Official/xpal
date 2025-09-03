@@ -1,0 +1,37 @@
+{
+    "query": {
+        "original": "creatine",
+        "show_strict_warning": false,
+        "is_navigational": false,
+        "is_news_breaking": false,
+        "spellcheck_off": true,
+        "country": "us",
+        "bad_results": false,
+        "should_fallback": false,
+        "postal_code": "",
+        "city": "",
+        "header_country": "",
+        "more_results_available": true,
+        "state": ""
+    },
+    "web": {
+        "type": "search",
+        "results": [
+            {
+                "title": "What is creatine? Potential benefits and risks of this popular supplement - Harvard Health",
+                "url": "https://www.health.harvard.edu/exercise-and-fitness/what-is-creatine-potential-benefits-and-risks-of-this-popular-supplement",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "<strong>Creatine</strong> may enhance athletic performance. It contributes to rapid energy production and may enhance power or speed bursts requiring short periods of anaerobic activity. The reason could be related to the association of <strong>creatine</strong> supplementation and increased glycogen storage in muscle.",
+                "page_age": "2024-03-20T04:00:00",
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "article",
+                "is_live": false,
+                "age": "March 20, 2024"
+            }
+        ],
+        "family_friendly": true
+    }
+}

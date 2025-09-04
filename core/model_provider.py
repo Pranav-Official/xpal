@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 
 # Load environment variables
 load_dotenv()
@@ -16,6 +17,7 @@ class ModelProvider:
         # Initialize models
         self._primary_model = None
         self._secondary_model = None
+        self._tertiary_model = None
 
     def get_model(self, model_type="primary"):
         """
@@ -30,7 +32,7 @@ class ModelProvider:
         if model_type == "primary":
             if not self._primary_model:
                 self._primary_model = ChatGoogleGenerativeAI(
-                    model="gemini-2.5-flash", google_api_key=self.google_api_key
+                    model="gemini-2.0-flash", google_api_key=self.google_api_key
                 )
             return self._primary_model
         elif model_type == "secondary":
@@ -39,5 +41,13 @@ class ModelProvider:
                     model="gemini-2.0-flash", google_api_key=self.google_api_key
                 )
             return self._secondary_model
+        elif model_type == "tertiary":
+            if not self._tertiary_model:
+                self._tertiary_model = ChatOpenAI(
+                    api_key=os.getenv("OPENROUTER_API_KEY"),
+                    base_url=os.getenv("OPENROUTER_BASE_URL"),
+                    model="qwen/qwen3-235b-a22b:free",
+                )
+            return self._tertiary_model
         else:
             raise ValueError("model_type must be either 'primary' or 'secondary'")

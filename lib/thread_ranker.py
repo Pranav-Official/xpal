@@ -56,8 +56,8 @@ Strictly evaluate based on structural, psychological, and algorithmic factors sh
 """
 
 
+model = ModelProvider().get_model("tertiary")
 
-model = ModelProvider().get_model()
 
 class Score(BaseModel):
     virality_score: int
@@ -66,10 +66,12 @@ class Score(BaseModel):
     weaknesses: List[str]
     summary_justification: str
 
+
 class ThreadScore(BaseModel):
     title: str
     index: int
     scores: Score
+
 
 class Score_Output(BaseModel):
     all_thread_scores: List[ThreadScore]

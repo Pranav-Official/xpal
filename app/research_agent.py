@@ -1,6 +1,9 @@
 from pydantic import BaseModel
 from typing import List, Optional
 from langgraph.graph import StateGraph, START, END
+import uuid
+import pandas as pd
+
 
 from lib.article_search import SearchResultItem, search_articles
 from lib.markdown_convert import MarkdownConverter
@@ -9,10 +12,12 @@ from lib.generate_thread import thread_generator
 from lib.thread_ranker import thread_ranker
 from lib.generate_thread import Thread
 
+from core.sql_lite_conf import sqllite_conn
+
 
 class State(BaseModel):
     user_search_term: str
-    instructions: str = ''
+    instructions: str = ""
     search_count: int = 10
     search_results: Optional[List[SearchResultItem]] = None
     research_scope: Optional[str] = None
@@ -34,6 +39,7 @@ def research_scope_definer(state: State):
 
     return {"research_scope": scope}
 
+
 def fetch_search_results(state: State):
     search_results = state.search_results
     mdCon = MarkdownConverter()
@@ -53,8 +59,11 @@ def display_search(state: State):
 
 
 def generate_threads(state: State):
-    threads = thread_generator(str(state.all_articles), state.user_search_term, state.instructions)
+    threads = thread_generator(
+        str(state.all_articles), state.user_search_term, state.instructions
+    )
     return {"threads": threads}
+
 
 def rank_threads(state: State):
     threads = state.threads
@@ -64,16 +73,27 @@ def rank_threads(state: State):
     score = 0
     selected_index = 0
     for thread in ranked_threads:
-        ranked_score = thread.scores.virality_score  + thread.scores.hook_score
+        ranked_score = thread.scores.virality_score + thread.scores.hook_score
         if ranked_score > score:
             score = ranked_score
             selected_index = thread.index
-    selected_thread = threads[selected_index-1]
+    selected_thread = threads[selected_index - 1]
     print("selected_thread:", selected_thread)
     return {"ranked_thread": selected_thread}
 
 
 def start_research_workflow(search_term: str, count: int, instructions: str):
+
+    job_id = uuid.uuid1()
+    df = pd.DataFrame(
+        {
+            "job_id": [str(job_id)],
+            "user_search_term": [search_term],
+            "search_count": [count],
+            "instructions": [instructions],
+        }
+    )
+    df.to_sql("jobs", con=sqllite_conn, if_exists="append", index=False)
 
     workflow = StateGraph(State)
 
@@ -90,13 +110,18 @@ def start_research_workflow(search_term: str, count: int, instructions: str):
     workflow.add_edge("generate_threads", "rank_threads")
     workflow.add_edge("rank_threads", END)
 
-
     chain = workflow.compile()
 
     # image_bytes = chain.get_graph().draw_mermaid_png()
     # with open("graph.png", "wb") as f:
     #     f.write(image_bytes)
 
-    result_state = chain.invoke({"user_search_term": search_term, "search_count": count, "instructions": instructions})
+    result_state = chain.invoke(
+        {
+            "user_search_term": search_term,
+            "search_count": count,
+            "instructions": instructions,
+        }
+    )
     print(result_state["threads"])
     return result_state["ranked_thread"]

@@ -56,9 +56,6 @@ Strictly evaluate based on structural, psychological, and algorithmic factors sh
 """
 
 
-model = ModelProvider().get_model("tertiary")
-
-
 class Score(BaseModel):
     virality_score: int
     hook_score: int
@@ -91,7 +88,8 @@ prompt = ChatPromptTemplate.from_messages(
 )
 
 
-def thread_ranker(all_threads: str):
+def thread_ranker(all_threads: str, model_choice: str = "tertiary"):
+    model = ModelProvider().get_model(model_choice)
     structured_model = model.with_structured_output(Score_Output)
     chain = prompt | structured_model
     output = chain.invoke({"all_threads": all_threads})

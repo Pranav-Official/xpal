@@ -24,6 +24,7 @@ class State(BaseModel):
     all_articles: Optional[List[str]] = None
     threads: Optional[List[Thread]] = None
     ranked_thread: Optional[Thread] = None
+    model_choice: str = "primary"
 
 
 def search_articles_wrap(state: State):
@@ -35,7 +36,7 @@ def search_articles_wrap(state: State):
 
 def research_scope_definer(state: State):
     search_term = state.user_search_term
-    scope = scope_definer(search_term)
+    scope = scope_definer(search_term, state.model_choice)
 
     return {"research_scope": scope}
 
@@ -60,7 +61,7 @@ def display_search(state: State):
 
 def generate_threads(state: State):
     threads = thread_generator(
-        str(state.all_articles), state.user_search_term, state.instructions
+        str(state.all_articles), state.user_search_term, state.instructions, state.model_choice
     )
     return {"threads": threads}
 
@@ -69,7 +70,7 @@ def rank_threads(state: State):
     threads = state.threads
     if not threads:
         return {"ranked_threads": []}
-    ranked_threads = thread_ranker(str(threads))
+    ranked_threads = thread_ranker(str(threads), state.model_choice)
     score = 0
     selected_index = 0
     for thread in ranked_threads:
@@ -82,7 +83,7 @@ def rank_threads(state: State):
     return {"ranked_thread": selected_thread}
 
 
-def start_research_workflow(search_term: str, count: int, instructions: str):
+def start_research_workflow(search_term: str, count: int, instructions: str, model_choice: str = "primary"):
 
     job_id = uuid.uuid1()
     df = pd.DataFrame(
@@ -121,6 +122,7 @@ def start_research_workflow(search_term: str, count: int, instructions: str):
             "user_search_term": search_term,
             "search_count": count,
             "instructions": instructions,
+            "model_choice": model_choice,
         }
     )
     print(result_state["threads"])

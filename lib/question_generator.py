@@ -4,9 +4,6 @@ from core.model_provider import ModelProvider
 from langchain_core.prompts import ChatPromptTemplate
 
 
-model = ModelProvider().get_model()
-
-
 class Scope_output(BaseModel):
     questions: List[str]
 
@@ -28,7 +25,8 @@ prompt = ChatPromptTemplate.from_messages(
 )
 
 
-def question_generator(scope: str):
+def question_generator(scope: str, model_choice: str = "primary"):
+    model = ModelProvider().get_model(model_choice)
     structured_model = model.with_structured_output(Scope_output)
     chain = prompt | structured_model
     output = chain.invoke({"scope": scope})

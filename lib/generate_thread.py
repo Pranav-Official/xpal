@@ -5,9 +5,6 @@ from langchain_core.prompts import ChatPromptTemplate
 from core.post_maker_prompt import thread_maker_prompt
 
 
-model = ModelProvider().get_model("tertiary")
-
-
 class ThreadPost(BaseModel):
     post_number: int
     content: str
@@ -41,7 +38,8 @@ prompt = ChatPromptTemplate.from_messages(
 )
 
 
-def thread_generator(scope: str, qa: str, instructions: str = ""):
+def thread_generator(scope: str, qa: str, instructions: str = "", model_choice: str = "tertiary"):
+    model = ModelProvider().get_model(model_choice)
     structured_model = model.with_structured_output(Scope_output)
     chain = prompt | structured_model
     output = chain.invoke({"scope": scope, "qa": qa, "instructions": instructions})

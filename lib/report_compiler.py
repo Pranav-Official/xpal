@@ -4,9 +4,6 @@ from core.model_provider import ModelProvider
 from langchain_core.prompts import ChatPromptTemplate
 
 
-model = ModelProvider().get_model()
-
-
 class Scope_output(BaseModel):
     report_markdown: str
 
@@ -36,7 +33,8 @@ prompt = ChatPromptTemplate.from_messages(
 )
 
 
-def report_compiler(scope: str, qa: str):
+def report_compiler(scope: str, qa: str, model_choice: str = "primary"):
+    model = ModelProvider().get_model(model_choice)
     structured_model = model.with_structured_output(Scope_output)
     chain = prompt | structured_model
     output = chain.invoke({"scope": scope, "qa": qa})

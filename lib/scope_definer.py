@@ -3,9 +3,6 @@ from core.model_provider import ModelProvider
 from langchain_core.prompts import ChatPromptTemplate
 
 
-model = ModelProvider().get_model()
-
-
 class Scope_output(BaseModel):
     markdown: str
 
@@ -28,7 +25,8 @@ prompt = ChatPromptTemplate.from_messages(
 )
 
 
-def scope_definer(search_term: str):
+def scope_definer(search_term: str, model_choice: str = "primary"):
+    model = ModelProvider().get_model(model_choice)
     structured_model = model.with_structured_output(Scope_output)
     chain = prompt | structured_model
     output = chain.invoke({"search_term": search_term})

@@ -14,10 +14,10 @@ class Thread(BaseModel):
     posts: List[ThreadPost]
 
 
-def search_articles(query, count, instructions) -> str:
+def search_articles(query, count, instructions, model_choice) -> str:
     try:
         # Call your workflow
-        results: Thread = start_research_workflow(query, count, instructions)
+        results: Thread = start_research_workflow(query, count, instructions, model_choice)
 
         html_output = f"<h2 style='font-family:sans-serif; color:#f5f5f5;'>{results.title}</h2>"
 
@@ -74,19 +74,24 @@ with gr.Blocks() as demo:
         instructions = gr.Textbox(
             label="Instructions (optional)", placeholder="Extra instructions..."
         )
+        model_choice = gr.Dropdown(
+            choices=["primary", "secondary", "tertiary"],
+            value="primary",
+            label="Select Model"
+        )
 
     search_btn = gr.Button("Search")
     status = gr.Label(value="", label="Status")  # Loader indicator
     output = gr.HTML()
 
-    def with_loader(query, count, instructions):
+    def with_loader(query, count, instructions, model_choice):
         yield "⏳ Processing...", ""  # Show loader
-        results_html = search_articles(query, count, instructions)
+        results_html = search_articles(query, count, instructions, model_choice)
         yield "", results_html  # Clear loader, show results
 
     search_btn.click(
         fn=with_loader,
-        inputs=[query, count, instructions],
+        inputs=[query, count, instructions, model_choice],
         outputs=[status, output],
     )
 

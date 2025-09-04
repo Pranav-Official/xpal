@@ -21,18 +21,18 @@ class ModelProvider:
 
     def get_model(self, model_type="primary"):
         """
-        Get a model based on the type (primary or secondary)
+        Get a model based on the type (primary, secondary, or tertiary)
 
         Args:
-            model_type (str): Type of model to get ("primary" or "secondary")
+            model_type (str): Type of model to get ("primary", "secondary", or "tertiary")
 
         Returns:
-            ChatGoogleGenerativeAI: The requested model
+            ChatGoogleGenerativeAI or ChatOpenAI: The requested model
         """
         if model_type == "primary":
             if not self._primary_model:
                 self._primary_model = ChatGoogleGenerativeAI(
-                    model="gemini-2.0-flash", google_api_key=self.google_api_key
+                    model="gemini-2.5-flash", google_api_key=self.google_api_key
                 )
             return self._primary_model
         elif model_type == "secondary":
@@ -50,4 +50,6 @@ class ModelProvider:
                 )
             return self._tertiary_model
         else:
-            raise ValueError("model_type must be either 'primary' or 'secondary'")
+            raise ValueError(
+                "model_type must be either 'primary', 'secondary', or 'tertiary'"
+            )
